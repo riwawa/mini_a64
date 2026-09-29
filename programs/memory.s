@@ -1,0 +1,5 @@
+MOVZ X0, #8192
+MOVZ X1, #42
+
+STR X1, [X0]
+LDR X2, [X0]

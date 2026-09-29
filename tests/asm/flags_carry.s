@@ -1,0 +1,2 @@
+MOVN X0, #0
+ADDS X1, X0, #1

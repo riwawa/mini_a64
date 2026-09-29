@@ -1,0 +1,8 @@
+MOVZ X0, #5
+MOVZ X1, #3
+
+ADD X2, X0, X1, LSL #1
+SUB X3, X2, X1, LSL #1
+
+ADDS X4, X0, X1, LSL #1
+SUBS X5, X4, X1, LSL #1

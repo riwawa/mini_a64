@@ -1,0 +1,2 @@
+MOVZ X0, #1
+SUBS X1, X0, #1

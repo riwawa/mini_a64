@@ -1,0 +1,9 @@
+mini_a64_cpu
+test_cpu
+assembler/mini_a64_as
+programs/*.bin
+tests/bin/*.bin
+*.o
+.DS_Store
+.vscode/
+.idea/

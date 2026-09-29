@@ -1,0 +1,11 @@
+MOVZ X0, #4112
+MOVZ X1, #5
+
+BLR X0
+
+B end
+
+ADD X1, X1, #7
+RET
+
+end:

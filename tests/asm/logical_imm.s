@@ -1,0 +1,6 @@
+MOVZ X0, #255
+
+AND X1, X0, #15
+ORR X2, X1, #240
+EOR X3, X2, #255
+ANDS X4, X0, #15

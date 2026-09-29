@@ -1,0 +1,3 @@
+MOVZ X0, #0
+MOVZ X1, #1
+MOVZ X2, #2
