@@ -7,3 +7,5 @@ tests/bin/*.bin
 .DS_Store
 .vscode/
 .idea/
+assembler/*.bin
+assembler/assembler_test

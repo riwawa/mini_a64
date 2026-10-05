@@ -194,10 +194,6 @@ Token lexer_next(Lexer *lexer)
          */
         if (is_digit(c))
         {
-            /*
-             * Voltamos conceitualmente para incluir
-             * o primeiro dígito.
-             */
             lexer->pos = start;
 
             return read_number(

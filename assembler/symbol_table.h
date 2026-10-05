@@ -11,11 +11,8 @@
 typedef struct
 {
     const char *name;
-
     size_t length;
-
     uint64_t address;
-
 } Symbol;
 
 
@@ -23,7 +20,6 @@ typedef struct
 {
     Symbol symbols[MAX_SYMBOLS];
     size_t count;
-
 } SymbolTable;
 
 
