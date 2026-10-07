@@ -1,294 +1,147 @@
 # Mini-A64
+![Mini-A64 Demo](docs/demo.gif)
+Mini-A64 is an educational 64-bit CPU, assembler and compiler inspired by the AArch64 architecture.
 
-Mini-A64 is an educational CPU toolchain inspired by AArch64, built from scratch in C.
-
-The goal of the project is to understand how software moves through multiple abstraction layers:
-
-```text
-assembly
-   ↓
-assembler
-   ↓
-machine code
-   ↓
-CPU emulator
-   ↓
-registers / memory / flags
-```
-
-The project is still a **work in progress**. The next major step is to build a compiler that generates Mini-A64 assembly.
-
----
-
-## Current status
-
-The project currently includes:
-
-- a simplified 64-bit AArch64-inspired ISA
-- 31 general-purpose registers (`X0`–`X30`)
-- a byte-addressable 1 MiB memory model
-- fixed-width 32-bit instructions
-- NZCV flags
-- little-endian memory access
-- a two-pass assembler
-- labels and symbol resolution
-- binary generation
-- a CPU emulator with fetch / decode / execute
-- arithmetic, logical, branch, function call, and memory instructions
-- automated ISA and integration tests
-- 57 assertions currently passing
-
----
-
-## Project structure
+The project was built from scratch to understand what happens between writing source code and executing machine instructions:
 
 ```text
-projects/
-├── assembler/
-├── cpu/
-│   ├── cpu.c
-│   ├── cpu.h
-│   └── main.c
-├── programs/
-│   ├── loop.s
-│   ├── arithmetic.s
-│   ├── branch.s
-│   ├── memory.s
-│   └── function_call.s
-├── tests/
-│   ├── test_cpu.c
-│   ├── asm/
-│   └── bin/
-├── diagrams/
-└── Makefile
+Mini source code
+      ↓
+   Compiler
+      ↓
+Mini-A64 Assembly
+      ↓
+   Assembler
+      ↓
+32-bit Machine Code
+      ↓
+ CPU Emulator
+      ↓
+Registers / Memory / Flags
 ```
 
----
+## Live Playground
 
-## Supported instruction families
+The complete toolchain runs directly in the browser through WebAssembly.
 
-### Arithmetic
+👉 **[Open Mini-A64 Playground](https://riwawa.github.io/mini_a64/)**
 
-- `ADD` immediate
-- `ADDS` immediate
-- `SUB` immediate
-- `SUBS` immediate
-- `ADD` shifted register
-- `ADDS` shifted register
-- `SUB` shifted register
-- `SUBS` shifted register
-- `ADD` extended register
-- `ADDS` extended register
-- `SUB` extended register
-- `SUBS` extended register
+The playground allows you to:
 
-### Logical
+- write programs in the Mini language;
+- inspect generated assembly;
+- inspect the symbol table;
+- see the encoded 32-bit instructions;
+- execute the program instruction by instruction;
+- inspect registers, memory, PC and NZCV flags;
+- run the CPU continuously with animated state changes;
+- reset and replay execution.
 
-- `AND` immediate
-- `ANDS` immediate
-- `ORR` immediate
-- `EOR` immediate
-- `AND` shifted register
-- `ANDS` shifted register
-- `ORR` shifted register
-- `EOR` shifted register
-
-### Move wide
-
-- `MOVZ`
-- `MOVK`
-- `MOVN`
-
-### Memory
-
-- `LDR`
-- `STR`
-
-### Control flow
-
-- `B`
-- `BL`
-- conditional branch (`B.cond`)
-- `BR`
-- `BLR`
-- `RET`
+> The web interface was intentionally kept simple and was built with basic HTML, CSS and JavaScript. I used AI assistance mainly to help finish and polish the interface so I could present the compiler, assembler and CPU work in an interactive way and make my learning process easier to visualize. The core systems concepts and implementation work are the main focus of this project.
 
 ---
 
-## Example
+## Why Mini-A64?
 
-Source:
+Mini-A64 is not intended to be a complete AArch64 implementation.
+
+It is an educational architecture designed to explore:
+
+- instruction encoding;
+- CPU fetch/decode/execute cycles;
+- registers and memory;
+- condition flags;
+- branches and control flow;
+- assemblers;
+- compilers;
+- machine code;
+- WebAssembly;
+- low-level systems programming.
+
+The architecture intentionally implements a smaller subset so each component can be understood and built incrementally.
+
+---
+
+# Mini Language
+
+The project includes a small high-level language compiled directly to Mini-A64 assembly.
+
+Example:
+
+```txt
+let x = 12
+let total = x + 3
+total = total - 2
+```
+
+The compiler currently supports:
+
+```text
+program     → { NEWLINE | statement } EOF
+
+statement   → declaration
+            | assignment
+
+declaration → "let" IDENTIFIER "=" expression
+
+assignment  → IDENTIFIER "=" expression
+
+expression  → factor { ("+" | "-") factor }
+
+factor      → NUMBER
+            | IDENTIFIER
+            | "(" expression ")"
+```
+
+Example generated assembly:
 
 ```asm
-MOVZ X0, #3
+MOVZ X0, #12
+MOVZ X2, #8192
+STR X0, [X2]
 
-loop:
-SUBS X0, X0, #1
-B.NE loop
-```
+LDR X0, [X2]
+MOVZ X3, #3
+ADD X0, X0, X3
 
-Assembler:
-
-```bash
-assembler/mini_a64_as programs/loop.s programs/loop.bin
-```
-
-Run:
-
-```bash
-./mini_a64_cpu programs/loop.bin
-```
-
-Expected final state:
-
-```text
-X0  = 0x0000000000000000
-PC  = 0x000000000000100c
-NZCV = 0110
+MOVZ X2, #8200
+STR X0, [X2]
 ```
 
 ---
 
-## Building
+# Architecture
 
-Build the CPU emulator:
+## Registers
 
-```bash
-make cpu
-```
-
-Run the automated test suite:
-
-```bash
-make test
-```
-
-Clean generated artifacts:
-
-```bash
-make clean
-```
-
-Rebuild everything:
-
-```bash
-make rebuild
-```
-
----
-
-## Testing
-
-The test suite assembles source programs automatically before executing them on the emulator.
-
-Current flow:
+Mini-A64 currently provides:
 
 ```text
-.s source
-   ↓
-assembler
-   ↓
-.bin
-   ↓
-CPU emulator
-   ↓
-register / NZCV assertions
+X0 - X30
 ```
 
-Current result:
+31 general-purpose 64-bit registers.
 
 ```text
-57 assertions
-0 failed
-ALL TESTS PASSED
+X0  uint64_t
+X1  uint64_t
+...
+X30 uint64_t
 ```
 
-The suite currently covers:
-
-- arithmetic instructions
-- shifted and extended operands
-- logical instructions
-- move-wide instructions
-- load/store
-- branches
-- function calls
-- register branches
-- NZCV flags
-- end-to-end assembler → binary → CPU execution
-
----
-
-## Assembler architecture
-
-The assembler follows this pipeline:
+The program counter is stored separately:
 
 ```text
-source
-↓
-lexer
-↓
-tokens
-↓
-parser
-↓
-statements / instructions
-↓
-pass 1
-↓
-symbol table
-↓
-pass 2
-↓
-encoder
-↓
-binary
+PC
 ```
 
-### Why two passes?
+## Memory
 
-The first pass discovers label addresses:
+The emulator uses:
 
 ```text
-label → address
+1 MiB byte-addressable memory
 ```
-
-The second pass resolves those labels and encodes instructions:
-
-```text
-address / offset → machine bits
-```
-
-This also allows forward references such as:
-
-```asm
-B end
-
-MOVZ X0, #99
-
-end:
-MOVZ X1, #7
-```
-
----
-
-## CPU emulator architecture
-
-The emulator follows the classic execution cycle:
-
-```text
-fetch
-↓
-decode
-↓
-execute
-```
-
-The machine state includes:
-
-- `X0`–`X30`
-- program counter (`PC`)
-- NZCV flags
-- memory
 
 Programs are currently loaded at:
 
@@ -296,125 +149,274 @@ Programs are currently loaded at:
 0x1000
 ```
 
----
-
-## NZCV flags
-
-The emulator tracks:
+Compiler variables begin at:
 
 ```text
-N = Negative
-Z = Zero
-C = Carry
-V = Overflow
+0x2000
 ```
+
+Memory is little-endian.
+
+## Condition Flags
+
+Mini-A64 implements the traditional AArch64-style condition flags:
+
+```text
+N - Negative
+Z - Zero
+C - Carry
+V - Overflow
+```
+
+Stored internally as:
+
+```text
+bit 3  bit 2  bit 1  bit 0
+
+ N      Z      C      V
+```
+
+---
+
+# Instruction Set
+
+Mini-A64 currently implements an educational subset of A64.
+
+## Arithmetic
+
+```asm
+ADD
+ADDS
+SUB
+SUBS
+```
+
+Supported forms include:
+
+```text
+immediate
+shifted register
+extended register
+```
+
+## Logical
+
+```asm
+AND
+ANDS
+ORR
+EOR
+```
+
+With immediate and shifted-register forms.
+
+## Move Wide
+
+```asm
+MOVZ
+MOVN
+MOVK
+```
+
+## Memory
+
+```asm
+LDR
+STR
+```
+
+64-bit loads and stores.
+
+## Branches
+
+```asm
+B
+BL
+B.cond
+BR
+BLR
+RET
+```
+
+Conditional branches use the NZCV flags.
+
+---
+
+# CPU Emulator
+
+The CPU follows the classic execution cycle:
+
+```text
+FETCH
+  ↓
+DECODE
+  ↓
+EXECUTE
+  ↓
+UPDATE STATE
+```
+
+The execution engine exposes a single-instruction API:
+
+```c
+int cpu_step(void);
+```
+
+Continuous execution is implemented using the same primitive:
+
+```c
+while(!cpu_finished()){
+    cpu_step();
+}
+```
+
+This keeps single-step execution and continuous execution based on the same CPU logic.
+
+---
+
+# Visual Debugger
+
+The browser interface exposes the internal state of the virtual machine.
+
+During execution you can inspect:
+
+```text
+PC
+NZCV
+X0-X30
+variables in memory
+current machine instruction
+```
+
+### Step
+
+`Step` executes exactly one machine instruction.
 
 Example:
 
 ```text
-NZCV = 0110
+PC = 0x1000
+
+MOVZ X0, #12
 ```
 
-means:
+After one step:
 
 ```text
-N = 0
-Z = 1
-C = 1
-V = 0
+X0 = 12
+PC = 0x1004
 ```
 
----
+### Run
 
-## What I am learning through this project
+`Run` repeatedly invokes the same `cpu_step()` function while updating the interface between instructions.
 
-This project is primarily educational and is being used to study:
-
-- C
-- systems programming
-- computer architecture
-- instruction encoding / decoding
-- bit manipulation
-- memory models
-- assemblers
-- parsers and lexers
-- symbol tables
-- calling conventions
-- control flow
-- automated testing
-- debugging across abstraction layers
+This makes register and memory mutations visible while the program executes.
 
 ---
 
-## Roadmap
-
-### Done
-
-- [x] simplified Mini-A64 ISA
-- [x] CPU emulator
-- [x] assembler
-- [x] lexer
-- [x] parser
-- [x] labels
-- [x] symbol table
-- [x] two-pass assembly
-- [x] binary generation
-- [x] arithmetic and logical instructions
-- [x] memory operations
-- [x] branches and conditional branches
-- [x] function calls with `BL` / `RET`
-- [x] register branches with `BR` / `BLR`
-- [x] NZCV flags
-- [x] automated ISA tests
-- [x] end-to-end assembly → machine code → execution tests
-
-### Next
-
-- [ ] improve assembler diagnostics
-- [ ] expand instruction coverage
-- [ ] document the Mini-A64 ISA formally
-- [ ] build a disassembler
-- [ ] add execution tracing / debugging
-- [ ] define a simple Mini-A64 ABI
-- [ ] add stack support
-- [ ] build a high-level language compiler
-- [ ] generate Mini-A64 assembly from source code
-
-### Later
-
-- [ ] microarchitecture model
-- [ ] microcode
-- [ ] datapath diagrams
-- [ ] Logisim implementation
-- [ ] physical hardware experiments
-
----
-
-## Long-term goal
-
-The long-term goal is to connect the complete stack:
+# Project Structure
 
 ```text
-high-level language
-        ↓
-compiler
-        ↓
-Mini-A64 assembly
-        ↓
-assembler
-        ↓
-machine code
-        ↓
-CPU emulator
-        ↓
-microarchitecture
-        ↓
-hardware
+mini_a64/
+│
+├── compiler/
+│   ├── lexer.c
+│   ├── parser.c
+│   ├── symbol_table.c
+│   ├── emitter.c
+│   └── web_api.c
+│
+├── assembler/
+│   ├── lexer.c
+│   ├── parser.c
+│   ├── assembler.c
+│   ├── encoder.c
+│   ├── symbol_table.c
+│   └── web_api.c
+│
+├── cpu/
+│   ├── cpu.c
+│   ├── cpu.h
+│   └── web_api.c
+│
+├── docs/
+│   ├── index.html
+│   ├── style.css
+│   ├── app.js
+│   └── wasm/
+│
+├── programs/
+├── tests/
+└── Makefile
 ```
 
 ---
 
-## License
+# Building
 
-This project is currently intended for educational and personal learning purposes.
-    
+The native components can be built with a C compiler.
+
+The browser version uses Emscripten to compile the C components to WebAssembly:
+
+```text
+C
+↓
+Emscripten
+↓
+WebAssembly
+↓
+Browser
+```
+
+The web application loads three independent WASM modules:
+
+```text
+Compiler WASM
+Assembler WASM
+CPU WASM
+```
+
+---
+
+# Web Architecture
+
+```text
+                       Browser
+                          │
+                          ▼
+                    Mini source
+                          │
+                          ▼
+                  Compiler (WASM)
+                          │
+                          ▼
+                      Assembly
+                          │
+                          ▼
+                  Assembler (WASM)
+                          │
+                          ▼
+                     uint32_t[]
+                          │
+                          ▼
+                     CPU (WASM)
+                          │
+              ┌───────────┼───────────┐
+              ▼           ▼           ▼
+          Registers     Memory       NZCV
+```
+
+The frontend itself is intentionally minimal:
+
+```text
+HTML
+CSS
+JavaScript
+WebAssembly
+```
+
+The interface is not the main engineering focus of the project. It exists as a lightweight visualization layer for the low-level systems work.
+
+---
+

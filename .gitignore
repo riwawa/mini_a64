@@ -14,7 +14,8 @@ tests/bin/*
 
 # Local test inputs
 test.mini
-
+# Local Emscripten SDK
+emsdk/
 # Object / executable artifacts
 *.o
 *.out
