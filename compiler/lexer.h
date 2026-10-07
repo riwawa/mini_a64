@@ -4,21 +4,27 @@
 #include <stddef.h>
 #include "compiler_types.h"
 
-typedef enum {
+typedef enum{
     TOKEN_NUMBER,
+    TOKEN_IDENTIFIER,
     TOKEN_OPERATOR,
+    TOKEN_ASSIGN,
+    TOKEN_LET,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_NEWLINE,
     TOKEN_EOF,
     TOKEN_INVALID
 } TokenType;
 
-typedef struct {
+typedef struct{
     TokenType type;
     const char *start;
     size_t length;
     OperationType operation;
 } Token;
 
-typedef struct {
+typedef struct{
     const char *source;
     size_t pos;
     size_t line;

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mini-A64 Playground</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>Mini-A64 Playground</h1>
+        <p>Compile, assemble and execute a Mini-A64 program instruction by instruction.</p>
+    </div>
+
+    <div class="controls">
+        <button id="compile" disabled>Compile</button>
+        <button id="step" disabled>Step</button>
+        <button id="run" disabled>Run</button>
+        <button id="reset" class="secondary" disabled>Reset</button>
+    </div>
+</header>
+
+<main>
+    <section class="panel source-panel">
+        <div class="panel-title">
+            <span>Source</span>
+            <span class="tag">Mini Language</span>
+        </div>
+
+        <textarea id="source">let x = 12
+let total = x + 3
+total = total - 2</textarea>
+    </section>
+
+    <section class="pipeline">
+        <div class="stage active">
+            <span class="stage-index">01</span>
+            <span>Source</span>
+        </div>
+
+        <span class="arrow">→</span>
+
+        <div class="stage active">
+            <span class="stage-index">02</span>
+            <span>Compiler</span>
+        </div>
+
+        <span class="arrow">→</span>
+
+        <div class="stage active">
+            <span class="stage-index">03</span>
+            <span>Assembler</span>
+        </div>
+
+        <span class="arrow">→</span>
+
+        <div class="stage active">
+            <span class="stage-index">04</span>
+            <span>Machine Code</span>
+        </div>
+
+        <span class="arrow">→</span>
+
+        <div class="stage active">
+            <span class="stage-index">05</span>
+            <span>CPU</span>
+        </div>
+    </section>
+
+    <div id="status" class="status">Loading WebAssembly modules...</div>
+
+    <section class="output-grid">
+        <article class="panel">
+            <div class="panel-title">
+                <span>Generated Assembly</span>
+                <span class="tag">Compiler output</span>
+            </div>
+
+            <pre id="assembly">Compile to see output.</pre>
+        </article>
+
+        <article class="panel">
+            <div class="panel-title">
+                <span>Symbol Table</span>
+                <span class="tag">Variables</span>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="symbols"></tbody>
+                </table>
+            </div>
+        </article>
+
+        <article class="panel machine-panel">
+            <div class="panel-title">
+                <span>Machine Code</span>
+                <span class="tag">PC / instruction / binary</span>
+            </div>
+
+            <div id="machine" class="machine-code">
+                <div class="empty-message">Compile to see machine code.</div>
+            </div>
+        </article>
+    </section>
+
+    <section class="cpu-grid">
+        <article class="panel">
+            <div class="panel-title">
+                <span>CPU State</span>
+                <span class="tag">Live</span>
+            </div>
+
+            <div class="cpu-status">
+                <div>
+                    <span>PC</span>
+                    <strong id="pc">—</strong>
+                </div>
+
+                <div>
+                    <span>NZCV</span>
+                    <strong id="nzcv">—</strong>
+                </div>
+
+                <div>
+                    <span>Execution</span>
+                    <strong id="execution">Not loaded</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="panel-title">
+                <span>Variables in Memory</span>
+                <span class="tag">64-bit values</span>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Address</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="memory"></tbody>
+                </table>
+            </div>
+        </article>
+
+        <article class="panel registers-panel">
+            <div class="panel-title">
+                <span>Registers</span>
+                <span class="tag">X0–X30</span>
+            </div>
+
+            <div id="registers" class="registers"></div>
+        </article>
+    </section>
+</main>
+
+<script src="wasm/mini_a64.js"></script>
+<script src="wasm/mini_a64_assembler.js"></script>
+<script src="wasm/mini_a64_cpu.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

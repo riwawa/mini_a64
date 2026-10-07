@@ -1,11 +1,36 @@
-mini_a64_cpu
-test_cpu
-assembler/mini_a64_as
-programs/*.bin
-tests/bin/*.bin
-*.o
 .DS_Store
+
+compiler/mini_a64_cc
+assembler/mini_a64_as
+cpu/mini_a64_cpu
+mini_a64_cpu
+compiler_test
+test_cpu
+
+compiler/*.s
+compiler/*.bin
+programs/*.bin
+tests/bin/*
+
+# Local test inputs
+test.mini
+
+# Object / executable artifacts
+*.o
+*.out
+
+# Temporary editor files
+*.tmp
+*.swp
+*~
+
+# Build directories
+build/
+dist/
+
+# Emscripten cache
+.emscripten_cache/
+emscripten_cache/
+
+*.log
 .vscode/
-.idea/
-assembler/*.bin
-assembler/assembler_test

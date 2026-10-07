@@ -1,7 +1,7 @@
 #ifndef COMPILER_TYPES_H
 #define COMPILER_TYPES_H
 
-typedef enum {
+typedef enum{
     OP_ADD,
     OP_SUB,
     OP_MUL,

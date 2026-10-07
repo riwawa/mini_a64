@@ -1,57 +1,62 @@
 #include <stdio.h>
-#include "lexer.h"
+#include <stdlib.h>
+#include "parser.h"
 
-static const char *token_type_name(TokenType type)
-{
-    switch (type) {
-        case TOKEN_NUMBER: return "NUMBER";
-        case TOKEN_OPERATOR: return "OPERATOR";
-        case TOKEN_EOF: return "EOF";
-        case TOKEN_INVALID: return "INVALID";
+static char *read_file(const char *path){
+    FILE *file = fopen(path, "rb");
+
+    if(!file){
+        perror(path);
+        return NULL;
     }
 
-    return "UNKNOWN";
+    if(fseek(file, 0, SEEK_END) != 0){
+        fclose(file);
+        return NULL;
+    }
+
+    long size = ftell(file);
+
+    if(size < 0){
+        fclose(file);
+        return NULL;
+    }
+
+    rewind(file);
+
+    char *source = malloc((size_t)size+1);
+
+    if(!source){
+        fclose(file);
+        return NULL;
+    }
+
+    size_t read = fread(source, 1, (size_t)size, file);
+    source[read] = '\0';
+
+    fclose(file);
+    return source;
 }
 
-static const char *operation_name(OperationType op)
-{
-    switch (op) {
-        case OP_ADD: return "ADD";
-        case OP_SUB: return "SUB";
-        case OP_MUL: return "MUL";
-        case OP_DIV: return "DIV";
-        case OP_UNKNOWN: return "UNKNOWN";
+int main(int argc, char **argv){
+    if(argc != 2){
+        fprintf(stderr, "usage: %s <source>\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
-    return "UNKNOWN";
-}
+    char *source = read_file(argv[1]);
 
-int main(void)
-{
-    const char *source = "12 + 34 * 2";
+    if(!source) return EXIT_FAILURE;
 
-    Lexer lexer;
-    lexer_init(&lexer, source);
+    Parser parser;
+    parser_init(&parser, source);
 
-    while (1) {
-        Token token = lexer_next(&lexer);
-
-        printf("%s", token_type_name(token.type));
-
-        if (token.length > 0) {
-            printf(" \"");
-            printf("%.*s", (int)token.length, token.start);
-            printf("\"");
-        }
-
-        if (token.type == TOKEN_OPERATOR) {
-            printf(" %s", operation_name(token.operation));
-        }
-
-        printf("\n");
-
-        if (token.type == TOKEN_EOF) break;
+    if(!parse_program(&parser)){
+        free(source);
+        return EXIT_FAILURE;
     }
+    printf("%s", emitter_output(&parser.emitter));
 
-    return 0;
+    free(source);
+    return EXIT_SUCCESS;
 }
